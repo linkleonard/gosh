@@ -5,8 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// Package scanner implements a scanner for Gosh source text.
-package scanner // import "gosh-lang.org/gosh/scanner"
+package scanner
 
 import (
 	"fmt"
@@ -20,7 +19,7 @@ type Scanner struct {
 	input  []rune
 
 	rPos            int  // current rune position in input
-	r               rune // current rune
+	r               rune // current rune; the same as input[rPos]
 	insertSemicolon bool // return next \n as semicolon
 }
 
@@ -63,6 +62,8 @@ var keywords = map[string]tokens.Type{
 	"false": tokens.False,
 }
 
+var errNulCharacter = fmt.Errorf("input contains NUL character (U+0000)")
+
 // New creates new scanner for the given Gosh source code.
 func New(input string, config *Config) (*Scanner, error) {
 	if config == nil {
@@ -72,7 +73,7 @@ func New(input string, config *Config) (*Scanner, error) {
 	runes := []rune(input)
 	for _, r := range runes {
 		if r == 0 {
-			return nil, fmt.Errorf("input contains NUL character (U+0000)")
+			return nil, errNulCharacter
 		}
 	}
 
@@ -219,7 +220,7 @@ func (s *Scanner) NextToken() tokens.Token {
 	case 0:
 		tok.Type = tokens.EOF
 	case '\n':
-		// s.skipWhitespace() exited on \n
+		// s.skipWhitespace() exited on \n, insert semicolon
 		tok.Type = tokens.Semicolon
 		tok.Literal = "\n"
 	case '#':
@@ -295,6 +296,7 @@ func (s *Scanner) NextToken() tokens.Token {
 		case '/':
 			tok.Type = tokens.Comment
 			tok.Literal = s.readLine()
+			return tok // l.readRune() already called by l.readLine(), so exit early
 		case '=':
 			s.readRune()
 			tok.Type = tokens.QuotientAssignment

@@ -5,20 +5,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package objects
+// +build tools
 
-//go:generate stringer -type Type
+package main
 
-// Type is the set of object types of the Gosh programming language.
-type Type int
-
-// The list of object types.
-const (
-	IntegerType Type = iota
-	FloatType
-	BooleanType
-	StringType
-	FunctionType
-	GoFunctionType
-	ContinueType
+import (
+	_ "github.com/dvyukov/go-fuzz/go-fuzz"
+	_ "github.com/dvyukov/go-fuzz/go-fuzz-build"
+	_ "github.com/dvyukov/go-fuzz/go-fuzz-dep"
+	_ "golang.org/x/tools/cmd/stringer"
 )

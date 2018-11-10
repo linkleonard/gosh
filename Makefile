@@ -1,12 +1,15 @@
 all: test
 
 init:
-	go get -u -v golang.org/x/tools/cmd/stringer \
-					github.com/dvyukov/go-fuzz/go-fuzz-build \
-					github.com/dvyukov/go-fuzz/go-fuzz \
-					github.com/golangci/golangci-lint/cmd/golangci-lint
+	env GO111MODULE=on go mod vendor -v
 
-	go get -t -v ./...
+	# see tools.go
+	go install -v ./vendor/github.com/dvyukov/go-fuzz/go-fuzz \
+					./vendor/github.com/dvyukov/go-fuzz/go-fuzz-build \
+					./vendor/github.com/dvyukov/go-fuzz/go-fuzz-dep \
+					./vendor/golang.org/x/tools/cmd/stringer
+
+	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.10.2
 
 install:
 	go generate ./...
@@ -22,4 +25,4 @@ test: install
 
 check: install
 	go run misc/check_license.go
-	golangci-lint run ./...
+	env GO111MODULE=off golangci-lint run
