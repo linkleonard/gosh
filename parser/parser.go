@@ -643,6 +643,70 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	return stmt
 }
 
+func (p *Parser) parseSwitchStatement() ast.Statement {
+	if !p.expectCurrent(tokens.Switch) {
+		return nil
+	}
+	stmt := &ast.SwitchStatement{Token: p.curToken}
+
+	// TODO: Read init
+	// TODO: Read expression
+
+	p.nextToken()
+	if !p.expectCurrent(tokens.LBRACE) {
+		return nil
+	}
+
+	stmt.Cases = make([]*ast.CaseClause, 0, 8)
+
+	p.nextToken()
+	for p.curToken.Type != tokens.RBRACE && p.curToken.Type != tokens.EOF {
+		caseStatement := p.parseCaseStatement()
+		if caseStatement != nil {
+			stmt.Cases = append(stmt.Cases, caseStatement)
+		}
+	}
+
+	if !p.expectCurrent(tokens.RBRACE) {
+		return nil
+	}
+
+	for p.peekToken.Type == tokens.Semicolon {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseCaseStatement() *ast.CaseClause {
+	if !p.expectCurrent(tokens.Case) {
+		return nil
+	}
+
+	caseStatement := ast.CaseClause{
+		Token: p.curToken,
+		Expressions: make([]ast.Expression, 0, 8),
+		Body: make([]ast.Statement, 0, 8),
+	}
+
+	p.nextToken()
+	for p.curToken.Type != tokens.Colon && p.curToken.Type != tokens.EOF {
+		expr := p.parseExpression(LowestPrec)
+		caseStatement.Expressions = append(caseStatement.Expressions, expr)
+		p.nextToken()
+	}
+
+	p.nextToken()
+	for p.curToken.Type != tokens.RBRACE && p.curToken.Type != tokens.EOF && p.curToken.Type != tokens.Case {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			caseStatement.Body = append(caseStatement.Body, stmt)
+		}
+		p.nextToken()
+	}
+	return &caseStatement
+}
+
 func (p *Parser) parseExpressionOrAssignmentStatement() ast.Statement {
 	cur := p.curToken
 	exp := p.parseExpression(LowestPrec)
@@ -680,6 +744,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseReturnStatement()
 	case tokens.Continue:
 		return p.parseContinueStatement()
+	case tokens.Switch:
+		return p.parseSwitchStatement()
 	case tokens.For:
 		return p.parseForStatement()
 	default:

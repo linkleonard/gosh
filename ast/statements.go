@@ -161,6 +161,51 @@ func (fs *ForStatement) String() string {
 func (fs *ForStatement) node()      {}
 func (fs *ForStatement) statement() {}
 
+
+type SwitchStatement struct {
+	Token tokens.Token // tokens.Switch
+	Init  *AssignStatement // initialization statement; or nil // TODO it also can be a define statement
+	Expression *Expression // Condition to match; or nil
+	Cases []*CaseClause
+}
+
+func (ss *SwitchStatement) String() string {
+	var res strings.Builder
+	res.WriteString("switch {\n")
+	for _, caseClause := range ss.Cases {
+		res.WriteString(caseClause.String())
+	}
+	res.WriteString("}")
+	return res.String()
+}
+
+func (ss *SwitchStatement) node()      {}
+func (ss *SwitchStatement) statement() {}
+
+type CaseClause struct {
+	Token tokens.Token // tokens.Case
+	Expressions []Expression // Values to match; or empty list for default
+	Body []Statement
+}
+
+func (cc *CaseClause) String() string {
+	var res strings.Builder
+	res.WriteString("case ")
+	for index, expression := range cc.Expressions {
+		res.WriteString(expression.String())
+		if index < len(cc.Expressions) - 1 {
+			res.WriteString(", ")
+		}
+	}
+	res.WriteString(":\n")
+	for _, statement := range cc.Body {
+		res.WriteString(statement.String() + "\n")
+	}
+
+	return res.String()
+}
+
+
 // ExpressionStatement represents an expression when it is used as a statement.
 type ExpressionStatement struct {
 	Token      tokens.Token // first token of expression

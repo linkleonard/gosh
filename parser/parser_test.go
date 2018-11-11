@@ -230,6 +230,42 @@ func TestParser(t *testing.T) {
 			},
 		},
 
+		"switch {\ncase true:\ntrue\n}": &ast.SwitchStatement{
+			Token: tokens.Token{Offset: 0, Type: tokens.Switch, Literal: "switch"},
+			Cases: []*ast.CaseClause{
+				&ast.CaseClause{
+					Token: tokens.Token{Offset: 9, Type: tokens.Case, Literal: "case"},
+					Expressions: []ast.Expression{
+						&ast.BooleanLiteral{
+							Token: tokens.Token{
+								Offset: 14,
+								Type: tokens.True,
+								Literal: "true",
+							},
+							Value: true,
+						},
+					},
+					Body: []ast.Statement{
+						&ast.ExpressionStatement {
+							Token: tokens.Token{
+								Offset: 20,
+								Type: tokens.True,
+								Literal: "true",
+							},
+							Expression: &ast.BooleanLiteral{
+								Token: tokens.Token{
+									Offset: 20,
+									Type: tokens.True,
+									Literal: "true",
+								},
+								Value: true,
+							},
+						},
+					},
+				},
+			},
+		},
+
 		`println("answer")`: &ast.ExpressionStatement{
 			Token: tokens.Token{Offset: 0, Type: tokens.Identifier, Literal: "println"},
 			Expression: &ast.CallExpression{

@@ -86,6 +86,9 @@ func (i *Interpreter) Eval(ctx context.Context, node ast.Node, scope *objects.Sc
 	case *ast.ForStatement:
 		return i.evalForStatement(ctx, node, scope)
 
+	case *ast.SwitchStatement:
+		return i.evalSwitchStatement(ctx, node, scope)
+
 	case *ast.IfStatement:
 		return i.evalIfStatement(ctx, node, scope)
 
@@ -312,6 +315,11 @@ func (i *Interpreter) evalForStatement(ctx context.Context, node *ast.ForStateme
 			}
 		}
 	}
+}
+
+func (i *Interpreter) evalSwitchStatement(ctx context.Context, node *ast.SwitchStatement, scope *objects.Scope) objects.Object {
+	fmt.Println("Inside a switch func!")
+	return nil
 }
 
 func (i *Interpreter) evalIfStatement(ctx context.Context, node *ast.IfStatement, scope *objects.Scope) objects.Object {
