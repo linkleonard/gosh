@@ -532,6 +532,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 var assignTokens = []tokens.Type{
 	tokens.Assignment,
+	tokens.Define,
 	tokens.SumAssignment,
 	tokens.DifferenceAssignment,
 	tokens.ProductAssignment,
@@ -649,10 +650,20 @@ func (p *Parser) parseSwitchStatement() ast.Statement {
 	}
 	stmt := &ast.SwitchStatement{Token: p.curToken}
 
-	// TODO: Read init
-	// TODO: Read expression
-
 	p.nextToken()
+
+
+	if p.curToken.Type == tokens.Identifier {
+		stmt.Init = p.parseAssignStatement()
+		p.nextToken()
+	}
+
+
+	if (p.curToken.Type != tokens.LBRACE) {
+		stmt.Expression = p.parseExpression(LowestPrec)
+		p.nextToken()
+	}
+
 	if !p.expectCurrent(tokens.LBRACE) {
 		return nil
 	}

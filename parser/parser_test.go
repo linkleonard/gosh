@@ -266,6 +266,73 @@ func TestParser(t *testing.T) {
 			},
 		},
 
+		"switch thing := true; thing {\ncase true:\ntrue\n}": &ast.SwitchStatement{
+			Token: tokens.Token{Offset: 0, Type: tokens.Switch, Literal: "switch"},
+			Init: &ast.AssignStatement {
+				Token: tokens.Token{
+					Offset: 13,
+					Type: tokens.Define,
+					Literal: ":=",
+				},
+				Name: &ast.Identifier{
+					Token: tokens.Token{
+						Offset: 7,
+						Type: tokens.Identifier,
+						Literal: "thing",
+					},
+					Value: "thing",
+				},
+				Value: &ast.BooleanLiteral{
+					Token: tokens.Token{
+						Offset: 16,
+						Type: tokens.True,
+						Literal: "true",
+					},
+					Value: true,
+				},
+			},
+			Expression: &ast.Identifier{
+				Token: tokens.Token{
+					Offset: 22,
+					Type: tokens.Identifier,
+					Literal: "thing",
+				},
+				Value: "thing",
+			},
+			Cases: []*ast.CaseClause{
+				&ast.CaseClause{
+					Token: tokens.Token{Offset: 30, Type: tokens.Case, Literal: "case"},
+					Expressions: []ast.Expression{
+						&ast.BooleanLiteral{
+							Token: tokens.Token{
+								Offset: 35,
+								Type: tokens.True,
+								Literal: "true",
+							},
+							Value: true,
+						},
+					},
+					Body: []ast.Statement{
+						&ast.ExpressionStatement {
+							Token: tokens.Token{
+								Offset: 41,
+								Type: tokens.True,
+								Literal: "true",
+							},
+							Expression: &ast.BooleanLiteral{
+								Token: tokens.Token{
+									Offset: 41,
+									Type: tokens.True,
+									Literal: "true",
+								},
+								Value: true,
+							},
+						},
+					},
+				},
+			},
+		},
+
 		`println("answer")`: &ast.ExpressionStatement{
 			Token: tokens.Token{Offset: 0, Type: tokens.Identifier, Literal: "println"},
 			Expression: &ast.CallExpression{

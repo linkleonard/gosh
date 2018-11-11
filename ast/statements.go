@@ -165,13 +165,25 @@ func (fs *ForStatement) statement() {}
 type SwitchStatement struct {
 	Token tokens.Token // tokens.Switch
 	Init  *AssignStatement // initialization statement; or nil // TODO it also can be a define statement
-	Expression *Expression // Condition to match; or nil
+	Expression Expression // Condition to match; or nil
 	Cases []*CaseClause
 }
 
 func (ss *SwitchStatement) String() string {
 	var res strings.Builder
-	res.WriteString("switch {\n")
+	res.WriteString("switch ")
+
+	if ss.Init != nil {
+		res.WriteString(ss.Init.String())
+		res.WriteString("; ")
+	}
+
+	if ss.Expression != nil {
+		res.WriteString(ss.Expression.String())
+		res.WriteString(" ")
+	}
+
+	res.WriteString("{\n")
 	for _, caseClause := range ss.Cases {
 		res.WriteString(caseClause.String())
 	}
